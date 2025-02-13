@@ -161,7 +161,8 @@ class CallbackQueryHandler():
         elif update.inline_message_id:
             key = update.inline_message_id
         else:
-            raise TypeError("chat_id or inline_message_id is required")
+            return
+            # raise TypeError("chat_id or inline_message_id is required")
         listener = client.cbd_listeners.get(key)
         if self.checker:
             if listener and not listener['future'].done():
