@@ -64,25 +64,27 @@ class MessageHandler():
 
     @patchable
     async def resolve_listener(self, client, message, *args):
-        listener = client.msg_listeners.get(message.chat.id)
-        if self.checker:
-            if listener and not listener['future'].done():
-                if (
-                    await listener['filters'](client, message) 
-                    if callable(listener['filters']) 
-                    else True
-                ):
-                    listener['future'].set_result(message)
-                    await self.user_callback(client, message, *args)
-        else:
-            await self.user_callback(client, message, *args)
+        if message and message.chat:
+            listener = client.msg_listeners.get(message.chat.id)
+            if self.checker:
+                if listener and not listener['future'].done():
+                    if (
+                        await listener['filters'](client, message) 
+                        if callable(listener['filters']) 
+                        else True
+                    ):
+                        listener['future'].set_result(message)
+                        await self.user_callback(client, message, *args)
+            else:
+                await self.user_callback(client, message, *args)
 
     @patchable
     async def check(self, client, update):
-        listener = client.msg_listeners.get(update.chat.id)
-        if self.checker:
-            if listener and not listener['future'].done():
-                return await listener['filters'](client, update) if callable(listener['filters']) else True
-        if callable(self.filters):
-            return await self.filters(client, update)
-        return True
+        if update and update.chat:
+            listener = client.msg_listeners.get(update.chat.id)
+            if self.checker:
+                if listener and not listener['future'].done():
+                    return await listener['filters'](client, update) if callable(listener['filters']) else True
+            if callable(self.filters):
+                return await self.filters(client, update)
+            return True
