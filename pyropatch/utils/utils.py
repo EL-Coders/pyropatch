@@ -62,6 +62,8 @@ async def handle_flood_wait(func, *args, **kwargs):
 async def check_cbd(buttons: InlineKeyboardMarkup):
     if not buttons:
         return False
+    if not buttons.inline_keyboard:
+        return False
     for button_row in buttons.inline_keyboard:
         for button in button_row:
             if button.callback_data:
